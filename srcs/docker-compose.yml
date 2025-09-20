@@ -1,0 +1,108 @@
+services:
+  mariadb:
+    build: ./requirements/mariadb/
+    container_name: mariadb
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_ROOT_PASSWORD_FILE: ${MYSQL_ROOT_PASSWORD_FILE}
+      MYSQL_PASSWORD_FILE: ${MYSQL_PASSWORD_FILE}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - inception_network
+    secrets:
+      - db_root_password
+      - db_password
+    healthcheck:
+      test: ["CMD-SHELL", 'mariadb-admin ping -h 127.0.0.1 -uroot -p"$$(cat /run/secrets/db_root_password)" || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  wordpress:
+    build: ./requirements/wordpress/
+    container_name: wordpress
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+      WORDPRESS_URL: https://${DOMAIN_NAME}
+      WORDPRESS_TITLE: ${WORDPRESS_TITLE}
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
+      WORDPRESS_USER: ${WORDPRESS_USER}
+      WORDPRESS_USER_PASSWORD: ${WORDPRESS_USER_PASSWORD}
+      WORDPRESS_USER_EMAIL: ${WORDPRESS_USER_EMAIL}
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception_network
+    secrets:
+      - db_password
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 9000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  nginx:
+    build: ./requirements/nginx/
+    container_name: nginx
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      SSL_COUNTRY: ${SSL_COUNTRY}
+      SSL_STATE: ${SSL_STATE}
+      SSL_CITY: ${SSL_CITY}
+      SSL_ORGANIZATION: ${SSL_ORGANIZATION}
+      SSL_OU: ${SSL_OU}
+    volumes:
+      - wordpress_data:/var/www/html:ro
+    networks:
+      - inception_network
+    ports:
+      - "443:443"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 443 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+networks:
+  inception_network:
+    driver: bridge
+    name: inception
+
+volumes:
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH}/mariadb
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH}/wordpress
+
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
