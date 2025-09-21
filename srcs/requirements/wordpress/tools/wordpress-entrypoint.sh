@@ -37,6 +37,19 @@ wait_for_db() {
     exit 1
 }
 
+wait_for_redis() {
+    echo "Waiting for Redis at redis:6379..."
+    for i in $(seq 1 30); do
+        if nc -z redis 6379; then
+            echo "Redis is ready!"
+            return 0
+        fi
+        sleep 1
+    done
+    echo "WARNING: Redis failed to become ready, proceeding without Redis cache"
+    return 1
+}
+
 configure_wordpress() {
     echo "Configuring WordPress..."
     
@@ -106,6 +119,42 @@ configure_wordpress() {
             --path=/var/www/html
         
         echo "WordPress installation completed"
+        
+        if wait_for_redis; then
+            echo "Installing Redis Object Cache plugin..."
+            php82 /usr/local/bin/wp plugin install redis-cache \
+                --activate \
+                --allow-root \
+                --path=/var/www/html
+            
+            echo "Configuring Redis cache..."
+            php82 /usr/local/bin/wp config set WP_REDIS_HOST redis \
+                --allow-root \
+                --path=/var/www/html
+            
+            php82 /usr/local/bin/wp config set WP_REDIS_PORT 6379 \
+                --allow-root \
+                --path=/var/www/html
+            
+            php82 /usr/local/bin/wp config set WP_REDIS_DATABASE 0 \
+                --allow-root \
+                --path=/var/www/html
+            
+            php82 /usr/local/bin/wp config set WP_REDIS_TIMEOUT 1 \
+                --allow-root \
+                --path=/var/www/html
+            
+            php82 /usr/local/bin/wp config set WP_REDIS_READ_TIMEOUT 1 \
+                --allow-root \
+                --path=/var/www/html
+            
+            echo "Enabling Redis object cache..."
+            php82 /usr/local/bin/wp redis enable \
+                --allow-root \
+                --path=/var/www/html || echo "Redis cache enable failed, but continuing..."
+            
+            echo "Redis cache configuration completed"
+        fi
     fi
     
     chown -R www-data:www-data /var/www/html

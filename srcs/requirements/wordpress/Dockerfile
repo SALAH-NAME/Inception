@@ -13,6 +13,9 @@ RUN apk update && apk add --no-cache \
     php82-gd \
     php82-xml \
     php82-phar \
+    php82-redis \
+    php82-tokenizer \
+    php82-ctype \
     wget \
     netcat-openbsd \
     openssl \

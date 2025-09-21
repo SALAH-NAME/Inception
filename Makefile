@@ -5,6 +5,7 @@ COMPOSE_FILE = ./srcs/docker-compose.yml
 DATA_DIR = /home/$(USER)/data
 WP_DATA = $(DATA_DIR)/wordpress
 DB_DATA = $(DATA_DIR)/mariadb
+REDIS_DATA = $(DATA_DIR)/redis
 SECRETS_DIR = ./secrets
 
 GREEN = \033[0;32m
@@ -38,6 +39,7 @@ setup: secrets
 	@echo "$(BLUE)📁 Setting up data directories...$(NC)"
 	@mkdir -p $(WP_DATA)
 	@mkdir -p $(DB_DATA)
+	@mkdir -p $(REDIS_DATA)
 	@echo "$(BLUE)🔧 Fixing permissions for data directories...$(NC)"
 	@docker run --rm -v $(DATA_DIR):/data alpine:3.21 sh -c "chown -R $(shell id -u):$(shell id -g) /data" 2>/dev/null || true
 	@echo "$(GREEN)✅ Data directories created successfully$(NC)"
