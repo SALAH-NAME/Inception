@@ -27,5 +27,6 @@ if [ -f "$INIT_FILE" ] && [ ! -f "$INIT_FLAG" ]; then
     touch "$INIT_FLAG"
     exec "$@" --init-file="$INIT_FILE"
 else
+    echo "Starting MariaDB with (already initialized)..."
     exec "$@"
 fi

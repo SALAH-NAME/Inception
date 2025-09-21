@@ -17,13 +17,6 @@ fi
 
 echo "$FTP_USER" > /etc/vsftpd.userlist
 
-# if [ -d "/var/www/html" ]; then
-#     chown -R "$FTP_USER:$FTP_USER" /var/www/html
-#     chmod -R 755 /var/www/html
-# else
-#     echo "Warning: /var/www/html not available yet"
-# fi
-
 mkdir -p /var/run/vsftpd/empty
 
 echo "FTP server starting with restricted user access..."
