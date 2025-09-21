@@ -82,6 +82,30 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  ftp:
+    build: ./requirements/bonus/ftp/
+    container_name: ftp
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    environment:
+      FTP_USER: ${FTP_USER}
+      FTP_PASSWORD: ${FTP_PASSWORD}
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception_network
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 21 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
 networks:
   inception_network:
     driver: bridge
