@@ -40,8 +40,6 @@ setup: secrets
 	@mkdir -p $(WP_DATA)
 	@mkdir -p $(DB_DATA)
 	@mkdir -p $(REDIS_DATA)
-	@echo "$(BLUE)🔧 Fixing permissions for data directories...$(NC)"
-	@docker run --rm -v $(DATA_DIR):/data alpine:3.21 sh -c "chown -R $(shell id -u):$(shell id -g) /data" 2>/dev/null || true
 	@echo "$(GREEN)✅ Data directories created successfully$(NC)"
 
 build:
