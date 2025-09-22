@@ -65,6 +65,8 @@ services:
         condition: service_healthy
       adminer:
         condition: service_healthy
+      static-site:
+        condition: service_healthy
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
       SSL_COUNTRY: ${SSL_COUNTRY}
@@ -135,6 +137,19 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "nc -z 127.0.0.1 9000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  static-site:
+    build: ./requirements/bonus/static-site/
+    container_name: static-site
+    networks:
+      - inception_network
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 8000 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
