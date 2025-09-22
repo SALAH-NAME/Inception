@@ -6,6 +6,7 @@ DATA_DIR = /home/$(USER)/data
 WP_DATA = $(DATA_DIR)/wordpress
 DB_DATA = $(DATA_DIR)/mariadb
 REDIS_DATA = $(DATA_DIR)/redis
+ADMINER_DATA = $(DATA_DIR)/adminer
 SECRETS_DIR = ./secrets
 
 GREEN = \033[0;32m
@@ -40,6 +41,7 @@ setup: secrets
 	@mkdir -p $(WP_DATA)
 	@mkdir -p $(DB_DATA)
 	@mkdir -p $(REDIS_DATA)
+	@mkdir -p $(ADMINER_DATA)
 	@echo "$(GREEN)✅ Data directories created successfully$(NC)"
 
 build:
