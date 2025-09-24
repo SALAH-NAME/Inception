@@ -7,6 +7,7 @@ WP_DATA = $(DATA_DIR)/wordpress
 DB_DATA = $(DATA_DIR)/mariadb
 REDIS_DATA = $(DATA_DIR)/redis
 ADMINER_DATA = $(DATA_DIR)/adminer
+GRAFANA_DATA = $(DATA_DIR)/grafana
 SECRETS_DIR = ./secrets
 
 GREEN = \033[0;32m
@@ -42,6 +43,7 @@ setup: secrets
 	@mkdir -p $(DB_DATA)
 	@mkdir -p $(REDIS_DATA)
 	@mkdir -p $(ADMINER_DATA)
+	@mkdir -p $(GRAFANA_DATA)
 	@echo "$(GREEN)✅ Data directories created successfully$(NC)"
 
 build:
@@ -76,7 +78,7 @@ fclean: down
 	fi
 	@echo "$(GREEN)✅ Complete cleanup finished$(NC)"
 
-re: clean up
+re: clean build up
 	@echo "$(GREEN)🔄 Rebuild completed!$(NC)"
 
 logs:

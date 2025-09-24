@@ -1,0 +1,157 @@
+{
+  "id": null,
+  "title": "Wordpress Status Overview",
+  "tags": ["Wordpress", "overview"],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "WordPress Posts Count",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "MariaDB"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) as posts FROM wp_posts WHERE post_status = 'publish' AND post_type = 'post'",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "WordPress Comments Count",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "MariaDB"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) as comments FROM wp_comments WHERE comment_approved = '1'",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "WordPress Users Count",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "MariaDB"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) as users FROM wp_users",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Active Users Today",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "MariaDB"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ( SELECT COUNT(DISTINCT post_author) FROM wp_posts WHERE DATE(post_date) = CURDATE() AND post_status = 'publish' ) + ( SELECT COUNT(DISTINCT user_id) FROM wp_comments WHERE DATE(comment_date) = CURDATE() AND comment_approved = '1' AND user_id > 0 ) as active_users",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "id": 5,
+      "title": "Recent WordPress Posts",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "MariaDB"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT post_title as 'Title', post_author as 'Author ID', post_date as 'Date', post_status as 'Status' FROM wp_posts WHERE post_type = 'post' AND post_status = 'publish' ORDER BY post_date DESC LIMIT 10",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 6,
+      "title": "Database Size",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "MariaDB"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb FROM information_schema.tables WHERE table_schema = DATABASE()",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "mbytes"
+        }
+      }
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "version": 0
+}

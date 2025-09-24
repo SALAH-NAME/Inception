@@ -67,6 +67,8 @@ services:
         condition: service_healthy
       static-site:
         condition: service_healthy
+      grafana:
+        condition: service_healthy
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME}
       SSL_COUNTRY: ${SSL_COUNTRY}
@@ -156,6 +158,36 @@ services:
       start_period: 60s
     restart: unless-stopped
 
+  grafana:
+    build: ./requirements/bonus/grafana/
+    container_name: grafana
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_SECURITY_SECRET_KEY: ${GRAFANA_SECRET_KEY}
+      GF_SERVER_DOMAIN: ${DOMAIN_NAME}
+      GF_SERVER_ROOT_URL: https://${DOMAIN_NAME}/grafana/
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      GF_MARIADB_PASSWORD_FILE: /run/secrets/db_password
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - inception_network
+    secrets:
+      - db_password
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
 networks:
   inception_network:
     driver: bridge
@@ -180,6 +212,12 @@ volumes:
       type: none
       o: bind
       device: ${DATA_PATH}/redis
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH}/grafana
 
 secrets:
   db_root_password:
