@@ -10,7 +10,7 @@ RUN apk update && apk add --no-cache \
 
 RUN adduser -D -g 'www' www
 
-RUN mkdir -p /www /etc/ssl/{certs,private} /var/log/nginx && \
+RUN mkdir -p /www /etc/ssl/certs /etc/ssl/private /var/log/nginx && \
 	chown -R www:www /var/lib/nginx && \
 	chown -R www:www /www
 
