@@ -3,10 +3,10 @@ services:
     build: ./requirements/mariadb/
     container_name: mariadb
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_ROOT_PASSWORD_FILE: ${MYSQL_ROOT_PASSWORD_FILE}
-      MYSQL_PASSWORD_FILE: ${MYSQL_PASSWORD_FILE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?MYSQL_DATABASE is required}
+      MYSQL_USER: ${MYSQL_USER:?MYSQL_USER is required}
+      MYSQL_ROOT_PASSWORD_FILE: ${MYSQL_ROOT_PASSWORD_FILE:?MYSQL_ROOT_PASSWORD_FILE is required}
+      MYSQL_PASSWORD_FILE: ${MYSQL_PASSWORD_FILE:?MYSQL_PASSWORD_FILE is required}
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
@@ -32,17 +32,17 @@ services:
         condition: service_healthy
     environment:
       WORDPRESS_DB_HOST: mariadb
-      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
-      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:?MYSQL_DATABASE is required}
+      WORDPRESS_DB_USER: ${MYSQL_USER:?MYSQL_USER is required}
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
-      WORDPRESS_URL: https://${DOMAIN_NAME}
-      WORDPRESS_TITLE: ${WORDPRESS_TITLE}
-      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER}
-      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
-      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
-      WORDPRESS_USER: ${WORDPRESS_USER}
-      WORDPRESS_USER_PASSWORD: ${WORDPRESS_USER_PASSWORD}
-      WORDPRESS_USER_EMAIL: ${WORDPRESS_USER_EMAIL}
+      WORDPRESS_URL: https://${DOMAIN_NAME:?DOMAIN_NAME is required}
+      WORDPRESS_TITLE: ${WORDPRESS_TITLE:?WORDPRESS_TITLE is required}
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER:?WORDPRESS_ADMIN_USER is required}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD:?WORDPRESS_ADMIN_PASSWORD is required}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL:?WORDPRESS_ADMIN_EMAIL is required}
+      WORDPRESS_USER: ${WORDPRESS_USER:?WORDPRESS_USER is required}
+      WORDPRESS_USER_PASSWORD: ${WORDPRESS_USER_PASSWORD:?WORDPRESS_USER_PASSWORD is required}
+      WORDPRESS_USER_EMAIL: ${WORDPRESS_USER_EMAIL:?WORDPRESS_USER_EMAIL is required}
     volumes:
       - wordpress_data:/var/www/html
     networks:
@@ -70,12 +70,12 @@ services:
       grafana:
         condition: service_healthy
     environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      SSL_COUNTRY: ${SSL_COUNTRY}
-      SSL_STATE: ${SSL_STATE}
-      SSL_CITY: ${SSL_CITY}
-      SSL_ORGANIZATION: ${SSL_ORGANIZATION}
-      SSL_OU: ${SSL_OU}
+      DOMAIN_NAME: ${DOMAIN_NAME:?DOMAIN_NAME is required}
+      SSL_COUNTRY: ${SSL_COUNTRY:?SSL_COUNTRY is required}
+      SSL_STATE: ${SSL_STATE:?SSL_STATE is required}
+      SSL_CITY: ${SSL_CITY:?SSL_CITY is required}
+      SSL_ORGANIZATION: ${SSL_ORGANIZATION:?SSL_ORGANIZATION is required}
+      SSL_OU: ${SSL_OU:?SSL_OU is required}
     volumes:
       - wordpress_data:/var/www/html:ro
     networks:
@@ -97,8 +97,8 @@ services:
       wordpress:
         condition: service_healthy
     environment:
-      FTP_USER: ${FTP_USER}
-      FTP_PASSWORD: ${FTP_PASSWORD}
+      FTP_USER: ${FTP_USER:?FTP_USER is required}
+      FTP_PASSWORD: ${FTP_PASSWORD:?FTP_PASSWORD is required}
     volumes:
       - wordpress_data:/var/www/html
     networks:
@@ -165,14 +165,14 @@ services:
       mariadb:
         condition: service_healthy
     environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-      GF_SECURITY_SECRET_KEY: ${GRAFANA_SECRET_KEY}
-      GF_SERVER_DOMAIN: ${DOMAIN_NAME}
-      GF_SERVER_ROOT_URL: https://${DOMAIN_NAME}/grafana/
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
+      DOMAIN_NAME: ${DOMAIN_NAME:?DOMAIN_NAME is required}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER is required}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_SECURITY_SECRET_KEY: ${GRAFANA_SECRET_KEY:?GRAFANA_SECRET_KEY is required}
+      GF_SERVER_DOMAIN: ${DOMAIN_NAME:?DOMAIN_NAME is required}
+      GF_SERVER_ROOT_URL: https://${DOMAIN_NAME:?DOMAIN_NAME is required}/grafana/
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?MYSQL_DATABASE is required}
+      MYSQL_USER: ${MYSQL_USER:?MYSQL_USER is required}
       GF_MARIADB_PASSWORD_FILE: /run/secrets/db_password
     volumes:
       - grafana_data:/var/lib/grafana
@@ -199,25 +199,25 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_PATH}/mariadb
+      device: ${DATA_PATH:?DATA_PATH is required}/mariadb
   wordpress_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_PATH}/wordpress
+      device: ${DATA_PATH:?DATA_PATH is required}/wordpress
   redis_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_PATH}/redis
+      device: ${DATA_PATH:?DATA_PATH is required}/redis
   grafana_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${DATA_PATH}/grafana
+      device: ${DATA_PATH:?DATA_PATH is required}/grafana
 
 secrets:
   db_root_password:

@@ -37,7 +37,7 @@ secrets:
 		echo "$(YELLOW)⚠️  db_password.txt already exists$(NC)"; \
 	fi
 
-setup: secrets
+setup: secrets env
 	@echo "$(BLUE)📁 Setting up data directories...$(NC)"
 	@mkdir -p $(WP_DATA)
 	@mkdir -p $(DB_DATA)
@@ -45,6 +45,18 @@ setup: secrets
 	@mkdir -p $(ADMINER_DATA)
 	@mkdir -p $(GRAFANA_DATA)
 	@echo "$(GREEN)✅ Data directories created successfully$(NC)"
+
+env:
+	@echo "$(BLUE)⚙️  Checking environment configuration...$(NC)"
+	@if [ ! -f "./srcs/.env" ]; then \
+		echo "$(YELLOW)⚠️  .env file not found, creating from .env.example...$(NC)"; \
+		cp ./srcs/.env.example ./srcs/.env; \
+		sed -i 's/^LOGIN=login$$/LOGIN=$(USER)/' ./srcs/.env; \
+		sed -i 's/^USER=login$$/USER=$(USER)/' ./srcs/.env; \
+		echo "$(GREEN)✅ Created .env with user: $(USER)$(NC)"; \
+	else \
+		echo "$(GREEN)✅ .env file already exists$(NC)"; \
+	fi
 
 build:
 	@echo "$(BLUE)🔨 Building Docker images...$(NC)"
@@ -131,6 +143,7 @@ help:
 	@echo "  $(GREEN)make restart$(NC)        - Restart services"
 	@echo "  $(GREEN)make build$(NC)          - Build Docker images only"
 	@echo "  $(GREEN)make setup$(NC)          - Create data directories only"
+	@echo "  $(GREEN)make env$(NC)            - Create .env from .env.example if missing"
 	@echo "  $(GREEN)make secrets$(NC)        - Generate password files if not exist"
 	@echo "  $(GREEN)make images$(NC)         - Show project images"
 	@echo "  $(GREEN)make volumes$(NC)        - Show project volumes"
@@ -138,4 +151,4 @@ help:
 	@echo "  $(GREEN)make fix-perm$(NC)       - Fix data directory permissions (! that can broke the application !)"
 	@echo "  $(GREEN)make help$(NC)           - Show this help message"
 
-.PHONY: all up setup secrets build start down clean fclean re logs status stop restart images volumes networks fix-perm help
+.PHONY: all up setup env secrets build start down clean fclean re logs status stop restart images volumes networks fix-perm help
